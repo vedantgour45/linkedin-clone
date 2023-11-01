@@ -24,7 +24,7 @@ const RightSide = ({ data }) => {
       })
       .catch((error) => {
         console.log(error.message);
-        setLoading(false);
+        // setLoading(false);
       });
   }, []);
 
