@@ -12,6 +12,7 @@ const RightSide = ({ data }) => {
   const [showMore, setShowMore] = useState(false);
   const [showLess, setShowLess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [newsError, setNewsError] = useState(false);
 
   useEffect(() => {
     // Make an API request to fetch LinkedIn news
@@ -23,7 +24,9 @@ const RightSide = ({ data }) => {
         setLoading(false);
       })
       .catch((error) => {
-        console.log("news", error.message);
+        setNewsError(true);
+        setLoading(false);
+        console.log("Failed to fetch news at the moment");
       });
   }, []);
 
@@ -59,6 +62,7 @@ const RightSide = ({ data }) => {
               alt="loading"
             />
           )}
+
           {news.slice(0, showMore ? 7 : 4).map((article, index) => (
             <li key={index}>
               <p>{truncateTitle(article.title)}</p>
@@ -71,6 +75,12 @@ const RightSide = ({ data }) => {
             </li>
           ))}
         </News>
+        {newsError && (
+          <Error>
+            Failed to load news
+            <img src="/images/error.gif" alt="error" />
+          </Error>
+        )}
         {news.length > 5 && !showMore && (
           <button onClick={toggleShowMore}>
             Show More{" "}
@@ -261,6 +271,19 @@ const News = styled.ul`
         }
       }
     }
+  }
+`;
+
+const Error = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  text-decoration: underline;
+
+  img {
+    width: 16px;
   }
 `;
 
