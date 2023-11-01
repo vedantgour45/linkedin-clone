@@ -164,13 +164,16 @@ const RightSide = ({ data }) => {
 
           <h3>LinkedIn Corporation © 2023</h3>
         </div>
-        <Credits></Credits>
+        <div>
+          <p>
+            Made by <span>Vedant Gour 🖤</span>
+          </p>
+          <p>for learning purpose only</p>
+        </div>
       </RightBottom>
     </Container>
   );
 };
-
-const Credits = styled.div``;
 
 const Container = styled.div`
   grid-area: rightside;
@@ -443,7 +446,7 @@ const RightBottom = styled.div`
       }
     }
 
-    &:last-child {
+    &:nth-child(2) {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -462,6 +465,20 @@ const RightBottom = styled.div`
 
       @media (max-width: 768px) {
         flex-direction: column;
+      }
+    }
+
+    &:last-child {
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.6);
+
+      p {
+        font-size: 12px;
+      }
+      span {
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.8);
       }
     }
   }

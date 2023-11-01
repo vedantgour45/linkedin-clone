@@ -212,7 +212,8 @@ const Login = () => {
         <img src="/images/linkedin-black.png" alt="credit-logo" />
         <div>| &nbsp; © 2023 All rights reserved &nbsp; |</div>
         <div>
-          Made by <strong>VEDANT GOUR</strong> for <b>Learning</b> purpose only
+          Made by <strong>VEDANT GOUR 🖤</strong> for <b>Learning</b> purpose
+          only
         </div>
       </Credits>
     </Container>
@@ -510,6 +511,7 @@ const Credits = styled.div`
   gap: 15px;
   text-align: center;
   font-size: 12px;
+  color: rgba(0, 0, 0, 0.7);
 
   img {
     width: 80px;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { collection, doc, getDocs } from "firebase/firestore";
@@ -320,6 +319,20 @@ const SignOut = styled.div`
   transition-duration: 167ms;
   text-align: center;
   display: none;
+
+  @media (max-width: 768px) {
+    transform: translateX(-100%);
+    top: -30px;
+    right: 10%;
+  }
+
+  @media (max-width: 575px) {
+    transform: translateX(-50%);
+  }
+
+  @media (max-width: 470px) {
+    transform: translateX(-20%);
+  }
 `;
 
 const User = styled(Navlist)`
