@@ -43,7 +43,7 @@ const Home = (props) => {
 };
 
 const Container = styled.div`
-  padding-top: 52px;
+  padding-top: 40px;
   max-width: 100%;
   background-color: #f4f2ee;
   height: 100vh;
