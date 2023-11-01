@@ -7,7 +7,6 @@ import { collection, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import toast from "react-hot-toast";
 
-
 const SignUpForm = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -19,7 +18,6 @@ const SignUpForm = () => {
   const [photo, setPhoto] = useState(null);
   const [imageURL, setImageURL] = useState("");
   const [loading, setLoading] = useState(false);
-  
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
@@ -107,6 +105,7 @@ const SignUpForm = () => {
 
         await pushDataToDB();
 
+        // localStorage.setItem("user", JSON.stringify(user));
         setLoading(false);
         navigate("/home");
       }

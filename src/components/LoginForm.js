@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
@@ -11,6 +11,15 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // useEffect(() => {
+  //   const user = localStorage.getItem("user");
+
+  //   if (user) {
+  //     const parsedUser = JSON.parse(user);
+  //     // navigate("/home");
+  //   }
+  // }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -33,6 +42,7 @@ const LoginForm = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         setLoading(false);
+        // localStorage.setItem("user", JSON.stringify(userCredential.user));
         navigate("/home");
         toast.success("Logged in successfully");
       })

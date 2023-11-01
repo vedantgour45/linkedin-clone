@@ -27,6 +27,7 @@ const Header = (props) => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem("user");
     auth
       .signOut()
       .then((res) => {

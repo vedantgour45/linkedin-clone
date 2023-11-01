@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { db, auth, provider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
@@ -8,6 +8,14 @@ import toast from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+
+  // useEffect(() => {
+  //   const user = localStorage.getItem("user");
+  //   if (user) {
+  //     const parsedUser = JSON.parse(user);
+  //     navigate("/home");
+  //   }
+  // }, [navigate]);
 
   const pushDataToDB = async (user) => {
     try {
@@ -35,6 +43,7 @@ const Login = () => {
         const user = userCredential.user;
         // console.log(user);
         if (user) {
+          // localStorage.setItem("user", JSON.stringify(user));
           pushDataToDB(user);
           navigate("/home");
           toast.success("Signed up successfully");
