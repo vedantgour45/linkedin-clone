@@ -5,7 +5,7 @@ import { auth } from "../firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 
 const API_KEY = "aeead52d6e964809b1a37f8e53bf9aa6";
-const API_LINK = `https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=${API_KEY}`;
+const API_LINK = `https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=${API_KEY}`;
 
 const RightSide = ({ data }) => {
   const [news, setNews] = useState([]);
@@ -24,6 +24,7 @@ const RightSide = ({ data }) => {
       })
       .catch((error) => {
         console.log(error);
+        setLoading(false);
       });
   }, []);
 
