@@ -23,7 +23,7 @@ const RightSide = ({ data }) => {
         setLoading(false);
       })
       .catch((error) => {
-        setNews(error.message);
+        console.log(error.message);
         setLoading(false);
       });
   }, []);
