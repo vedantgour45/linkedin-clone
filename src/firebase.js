@@ -7,12 +7,7 @@ import { GoogleAuthProvider } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBPbhTXo-duecdp2-YHqKU0ddj7P30L1A4",
-  authDomain: "linkedin-clone-77ffc.firebaseapp.com",
-  projectId: "linkedin-clone-77ffc",
-  storageBucket: "linkedin-clone-77ffc.appspot.com",
-  messagingSenderId: "1093986724805",
-  appId: "1:1093986724805:web:1a0ad2f75e4c51629ef9ac",
+ // Firebase config
 };
 
 // Initialize Firebase
