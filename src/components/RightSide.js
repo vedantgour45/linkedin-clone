@@ -117,22 +117,22 @@ const RightSide = ({ data }) => {
           />
         </AdIcons>
         <AdSubtext>Boost your profile visibility by 2x</AdSubtext>
-        <a href="#" className="premium-btn">
+        <a href="/home" className="premium-btn">
           Try for free
         </a>
       </PremiumCard>
 
       <Footer>
         <Links>
-          <a href="#">About</a>
-          <a href="#">Accessibility</a>
-          <a href="#">Help Center</a>
-          <a href="#">Privacy & Terms</a>
-          <a href="#">Ad Choices</a>
-          <a href="#">Advertising</a>
-          <a href="#">Business Services</a>
-          <a href="#">Get the LinkedIn app</a>
-          <a href="#">More</a>
+          <a href="/home">About</a>
+          <a href="/home">Accessibility</a>
+          <a href="/home">Help Center</a>
+          <a href="/home">Privacy & Terms</a>
+          <a href="/home">Ad Choices</a>
+          <a href="/home">Advertising</a>
+          <a href="/home">Business Services</a>
+          <a href="/home">Get the LinkedIn app</a>
+          <a href="/home">More</a>
         </Links>
         <Copyright>
           <img src="/images/login-logo.svg" alt="" />
