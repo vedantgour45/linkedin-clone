@@ -1,186 +1,144 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import axios from "axios";
-import { auth } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 
-const API_KEY = "aeead52d6e964809b1a37f8e53bf9aa6";
-const API_LINK = `https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=${API_KEY}`;
+const NEWS_API_KEY = process.env.REACT_APP_NEWS_API_KEY;
+const NEWS_URL = `https://newsapi.org/v2/top-headlines?country=us&category=technology&apiKey=${NEWS_API_KEY}`;
 
 const RightSide = ({ data }) => {
   const [news, setNews] = useState([]);
-  const [showMore, setShowMore] = useState(false);
-  const [showLess, setShowLess] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [newsError, setNewsError] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    // Make an API request to fetch LinkedIn news
     axios
-      .get(API_LINK)
+      .get(NEWS_URL)
       .then((response) => {
-        // console.log(response.data.articles);
-        setNews(response.data.articles);
+        setNews(response.data.articles.slice(0, 5));
         setLoading(false);
       })
-      .catch((error) => {
-        setNewsError(true);
+      .catch(() => {
+        setError(true);
         setLoading(false);
-        console.log("Failed to fetch news at the moment");
       });
   }, []);
-
-  const toggleShowMore = () => {
-    setShowMore(!showMore);
-    setShowLess(false);
-  };
-
-  const toggleShowLess = () => {
-    setShowMore(false);
-    setShowLess(!showLess);
-  };
-
-  const truncateTitle = (title) => {
-    if (title.length > 45) {
-      return title.slice(0, 45) + "...";
-    }
-    return title;
-  };
 
   return (
     <Container>
       <NewsCard>
         <Title>
           <h2>LinkedIn News</h2>
-          <img src="/images/feed-icon.svg" alt="feed-icon" />
+          <img src="/images/feed-icon.svg" alt="" className="info-icon" />
         </Title>
-        <News>
-          {loading && (
-            <img
-              className="loading"
-              src="/images/spinner-loading.svg"
-              alt="loading"
-            />
+        <NewsList>
+          {loading ? (
+            <Loading>
+              <img src="/images/spinner-loading.svg" alt="Loading..." />
+            </Loading>
+          ) : error ? (
+            <ErrorText>
+              Top stories: Conflict spills into a second day...
+            </ErrorText>
+          ) : (
+            news.map((n, i) => (
+              <li key={i}>
+                <a href={n.url} target="_blank" rel="noreferrer">
+                  <h4>{n.title}</h4>
+                  <p>
+                    {Math.floor(Math.random() * 5) + 1}d ago •{" "}
+                    {Math.floor(Math.random() * 50000) + 1000} readers
+                  </p>
+                </a>
+              </li>
+            ))
           )}
-
-          {news.slice(0, showMore ? 7 : 4).map((article, index) => (
-            <li key={index}>
-              <p>{truncateTitle(article.title)}</p>
-              <div>
-                <span>
-                  Check full news <a href={article.url}>here</a>
-                </span>
-                <span>Published on : {article.publishedAt.slice(0, 10)}</span>
-              </div>
-            </li>
-          ))}
-        </News>
-        {newsError && (
-          <Error>
-            Failed to load news
-            <img src="/images/error.gif" alt="error" />
-          </Error>
-        )}
-        {news.length > 5 && !showMore && (
-          <button onClick={toggleShowMore}>
-            Show More{" "}
-            <span className="material-symbols-outlined">expand_more</span>
-          </button>
-        )}
-        {showMore && (
-          <button onClick={toggleShowLess}>
-            Show Less
-            <span className="material-symbols-outlined">keyboard_arrow_up</span>
-          </button>
-        )}
+        </NewsList>
+        <ShowMore>
+          Show more <img src="/images/down-icon.svg" alt="" />
+        </ShowMore>
       </NewsCard>
-      <Feed>
+
+      <PuzzleCard>
         <Title>
-          <h2>Add to your feed</h2>
-          <img src="/images/feed-icon.svg" alt="feed-icon" />
+          <h2>Today's puzzle games</h2>
         </Title>
-        <FeedList>
+        <PuzzleList>
           <li>
-            <a>
-              <Avatar />
-            </a>
-            <div>
-              <span>#Linkedin</span>
-              <button>Follow</button>
+            <div className="puzzle-info">
+              <img
+                src="https://static.licdn.com/aero-v1/networks/lbc/white/assets/images/puzzle-logo-queens-8c8f0f.png"
+                alt=""
+              />
+              <div>
+                <h4>Queens #671</h4>
+                <p>Crown each region</p>
+              </div>
             </div>
+            <img src="/images/right-icon.svg" alt="" className="arrow" />
           </li>
           <li>
-            <a>
-              <Avatar />
-            </a>
-            <div>
-              <span>#Google</span>
-              <button>Follow</button>
+            <div className="puzzle-info">
+              <img
+                src="https://static.licdn.com/aero-v1/networks/lbc/white/assets/images/puzzle-logo-pinball-4a5f4a.png"
+                alt=""
+              />
+              <div>
+                <h4>Pinball #350</h4>
+                <p>Make connections played</p>
+              </div>
             </div>
+            <img src="/images/right-icon.svg" alt="" className="arrow" />
           </li>
-        </FeedList>
-        <Recommendation>
-          View all recommendations
-          <img src="/images/right-icon.svg" alt="right-icon" />
-        </Recommendation>
-      </Feed>
+        </PuzzleList>
+        <ShowMore>
+          Show more <img src="/images/down-icon.svg" alt="" />
+        </ShowMore>
+      </PuzzleCard>
 
       <PremiumCard>
-        <Adv>
-          <p>Ad</p>
-          <img src="/images/three-dots.gif" alt="three-dots" />
-        </Adv>
-        <p>
-          <span>{data.name ? data.name.split(" ")[0] : "Hey"}</span>, make
-          connections that matter most in your job search
-        </p>
-        <div>
-          {data.profilePicture ? (
-            <img src={data.profilePicture} alt="photo" />
+        <AdHeader>
+          <span>Ad</span>
+          <img src="/images/ellipsis.svg" alt="" />
+        </AdHeader>
+        <AdText>
+          {data?.name?.split(" ")[0] || "User"}, stay ahead in your career with
+          LinkedIn Premium
+        </AdText>
+        <AdIcons>
+          {data?.profilePicture ? (
+            <img src={data.profilePicture} alt="" className="user-img" />
           ) : (
-            <img src="/images/user.svg" alt="user" />
+            <img src="/images/user.svg" alt="" className="user-img" />
           )}
-          <img src="/images/premium.png" alt="linkedin-premium" />
-        </div>
-        <p>See who viewed your profile in the last 90 days</p>
-        <button>Try for free!</button>
+          <img
+            src="/images/premium.png"
+            alt="Premium"
+            className="premium-img"
+          />
+        </AdIcons>
+        <AdSubtext>Boost your profile visibility by 2x</AdSubtext>
+        <a href="#" className="premium-btn">
+          Try for free
+        </a>
       </PremiumCard>
 
-      <RightBottom>
-        <div>
-          <span>
-            <a href="#">About</a>
-          </span>
-          <span>
-            <a href="#">Accessibility</a>
-          </span>
-          <span>
-            <a href="#">Help Center</a>
-          </span>
-          <span>
-            <a href="#">Privacy & Terms</a>
-          </span>
-          <span>
-            <a href="#">Advertising</a>
-          </span>
-          <span>
-            <a href="#">More</a>
-          </span>
-        </div>
-        <div>
-          <a href="#">
-            <img src="/images/login-logo.svg" alt="logo" />
-          </a>
-
-          <h3>LinkedIn Corporation © 2023</h3>
-        </div>
-        <div>
-          <p>
-            Made by <span>Vedant Gour 🖤</span>
-          </p>
-          <p>for learning purpose only</p>
-        </div>
-      </RightBottom>
+      <Footer>
+        <Links>
+          <a href="#">About</a>
+          <a href="#">Accessibility</a>
+          <a href="#">Help Center</a>
+          <a href="#">Privacy & Terms</a>
+          <a href="#">Ad Choices</a>
+          <a href="#">Advertising</a>
+          <a href="#">Business Services</a>
+          <a href="#">Get the LinkedIn app</a>
+          <a href="#">More</a>
+        </Links>
+        <Copyright>
+          <img src="/images/login-logo.svg" alt="" />
+          <span>LinkedIn Corporation © 2026</span>
+        </Copyright>
+      </Footer>
     </Container>
   );
 };
@@ -189,322 +147,239 @@ const Container = styled.div`
   grid-area: rightside;
 `;
 
-const NewsCard = styled.div`
-  text-align: center;
-  overflow: hidden;
-  margin-bottom: 8px;
+const CommonCard = styled.div`
   background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 15%), 0 0 0 rgb(0 0 0 / 20%);
-  transition: box-shadow 83ms;
-  position: relative;
-  border: none;
-  padding: 12px;
-  /* min-height: 300px;
-  transition: min-height 15s ease-in-out;
-  overflow: hidden; */
-
-  button {
-    background-color: transparent;
-    border: none;
-    color: rgba(0, 0, 0, 0.5);
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 7px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 6px;
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-      border-radius: 5px;
-    }
-  }
+  border-radius: 8px;
+  border: 1px solid var(--linkedin-border);
+  margin-bottom: 8px;
+  overflow: hidden;
+  padding: 12px 0 0;
 `;
 
 const Title = styled.div`
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: baseline;
-  padding: 14px 7px;
-  color: rgba(0, 0, 0, 0.7);
+  margin-bottom: 8px;
+  padding: 0 12px;
+
+  h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--linkedin-text);
+  }
+  .info-icon {
+    width: 14px;
+    background: #000;
+    border-radius: 2px;
+    filter: invert(1);
+    padding: 1px;
+  }
 `;
 
-const News = styled.ul`
-  line-height: 1.7;
-  text-align: left;
-  margin-inline: 20px;
+const NewsCard = styled(CommonCard)``;
 
-  p {
-    font-size: 14px;
-    font-weight: 500;
-  }
-
+const NewsList = styled.ul`
+  list-style: none;
   li {
-    margin-bottom: 5px;
+    padding: 4px 12px;
     a {
-      color: #0a66c2;
-      text-decoration: none;
-
-      &:hover {
+      h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--linkedin-text);
+        line-height: 1.4;
+      }
+      p {
+        font-size: 12px;
+        color: var(--linkedin-text-secondary);
+        margin-top: 2px;
+      }
+      &:hover h4 {
         text-decoration: underline;
       }
     }
-  }
-
-  div {
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: rgba(0, 0, 0, 0.6);
-
-    span {
-      &:last-child {
-        font-size: 10px;
-
-        @media (max-width: 768px) {
-          display: none;
-        }
-      }
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
     }
   }
 `;
 
-const Error = styled.div`
+const ShowMore = styled.button`
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 7px;
+  gap: 4px;
+  padding: 8px 12px;
   font-size: 14px;
-  text-decoration: underline;
+  font-weight: 600;
+  color: var(--linkedin-text-secondary);
+  width: 100%;
+  margin-top: 4px;
 
   img {
-    width: 16px;
-  }
-`;
-
-const Feed = styled.div`
-  text-align: center;
-  overflow: hidden;
-  margin-bottom: 8px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 15%), 0 0 0 rgb(0 0 0 / 20%);
-  transition: box-shadow 83ms;
-  position: relative;
-  border: none;
-  padding: 12px;
-`;
-
-const FeedList = styled.ul`
-  margin-top: 5px;
-
-  li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-    position: relative;
-    font-size: 14px;
-
-    & > div {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-
-      span {
-        color: rgba(0, 0, 0, 0.8);
-        font-weight: 500;
-      }
-    }
-
-    button {
-      border: 1px solid #0a66c2;
-      color: #0a66c2;
-      border-radius: 30px;
-      transition-duration: 167ms;
-      font-size: 16px;
-      font-weight: 650;
-      line-height: 40px;
-      padding: 0 15px;
-      text-align: center;
-      background-color: rgba(0, 0, 0, 0);
-      cursor: pointer;
-
-      &:hover {
-        border: 1.5px solid;
-        background-color: rgba(112, 181, 249, 0.15);
-        color: #0a66c2;
-        text-decoration: none;
-      }
-    }
-  }
-`;
-
-const Avatar = styled.div`
-  background-image: url("/images/hashtag.svg");
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  width: 48px;
-  height: 48px;
-  margin-right: 8px;
-  margin-top: 7px;
-`;
-
-const Recommendation = styled.a`
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: 500;
-  color: #0a66c2;
-
-  img {
-    margin-top: 3px;
+    width: 12px;
+    opacity: 0.6;
   }
 
   &:hover {
-    cursor: pointer;
-    text-decoration: underline;
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--linkedin-text);
   }
 `;
 
-const PremiumCard = styled(Feed)`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 10px;
-  min-height: 220px;
-  padding: 20px;
+const PuzzleCard = styled(CommonCard)``;
 
-  p {
-    font-size: 16px;
-    line-height: 1.5;
-    color: rgba(0, 0, 0, 0.6);
-    font-weight: 400;
-  }
-
-  & > div {
+const PuzzleList = styled.ul`
+  list-style: none;
+  li {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: center;
-    gap: 15px;
-
-    img {
-      width: 50px;
-      height: auto;
-      border-radius: 50px;
-      aspect-ratio: 1 / 1;
-
-      &:last-child {
-        width: 60px;
-        border-radius: 0;
-      }
-    }
-  }
-
-  button {
-    border: 1px solid #0a66c2;
-    color: #0a66c2;
-    border-radius: 30px;
-    transition-duration: 167ms;
-    font-size: 16px;
-    font-weight: 650;
-    line-height: 40px;
-    padding: 0 15px;
-    width: fit-content;
-    text-align: center;
-    margin-inline: auto;
-    background-color: rgba(0, 0, 0, 0);
-    cursor: pointer;
-
+    padding: 12px;
     &:hover {
-      border: 1.5px solid;
-      background-color: rgba(112, 181, 249, 0.15);
-      color: #0a66c2;
-      text-decoration: none;
-    }
-  }
-`;
-
-const Adv = styled.div`
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-
-  & > img {
-    max-width: 15px;
-  }
-`;
-
-const RightBottom = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-inline: auto;
-  text-align: center;
-  gap: 20px;
-  margin-top: 20px;
-  margin-bottom: 100px;
-
-  div {
-    &:first-child {
-      font-size: 14px;
-
-      a {
-        line-height: 1.5;
-        text-decoration: none;
-        color: rgba(0, 0, 0, 0.6);
-        margin-right: 15px;
-
-        &:hover {
-          color: #0a66c2;
-          text-decoration: underline;
-        }
-      }
+      background-color: rgba(0, 0, 0, 0.05);
     }
 
-    &:nth-child(2) {
+    .puzzle-info {
       display: flex;
-      justify-content: center;
       align-items: center;
-      gap: 10px;
-
+      gap: 12px;
       img {
-        height: 17px;
-        width: auto;
+        width: 40px;
+        border-radius: 4px;
       }
-
-      h3 {
-        font-size: 14px;
-        font-weight: 400;
-        color: rgba(0, 0, 0, 0.6);
-      }
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-      }
-    }
-
-    &:last-child {
-      font-weight: 400;
-      color: rgba(0, 0, 0, 0.6);
-
-      p {
-        font-size: 12px;
-      }
-      span {
+      h4 {
         font-size: 14px;
         font-weight: 600;
-        color: rgba(0, 0, 0, 0.8);
+      }
+      p {
+        font-size: 12px;
+        color: var(--linkedin-text-secondary);
       }
     }
+
+    .arrow {
+      width: 16px;
+      opacity: 0.6;
+    }
   }
+`;
+
+const PremiumCard = styled(CommonCard)`
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+
+  .premium-btn {
+    border: 1px solid var(--linkedin-blue);
+    color: var(--linkedin-blue);
+    border-radius: 20px;
+    padding: 10px 24px;
+    font-weight: 600;
+    font-size: 16px;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-bottom: 8px;
+
+    &:hover {
+      background-color: rgba(10, 102, 194, 0.1);
+      border-width: 2px;
+    }
+  }
+`;
+
+const AdHeader = styled.div`
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--linkedin-text-secondary);
+  img {
+    width: 14px;
+  }
+`;
+
+const AdText = styled.p`
+  font-size: 14px;
+  color: var(--linkedin-text-secondary);
+  margin: 12px 0;
+`;
+
+const AdIcons = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px 0;
+
+  .user-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+  }
+  .premium-img {
+    width: 72px;
+  }
+`;
+
+const AdSubtext = styled.p`
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--linkedin-text);
+  margin-bottom: 12px;
+`;
+
+const Footer = styled.footer`
+  padding: 12px;
+  text-align: center;
+`;
+
+const Links = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  a {
+    font-size: 12px;
+    color: var(--linkedin-text-secondary);
+    &:hover {
+      color: var(--linkedin-blue);
+      text-decoration: underline;
+    }
+  }
+`;
+
+const Copyright = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  img {
+    height: 14px;
+  }
+  span {
+    font-size: 12px;
+    color: var(--linkedin-text-secondary);
+  }
+`;
+
+const Loading = styled.div`
+  text-align: center;
+  img {
+    width: 32px;
+  }
+`;
+
+const ErrorText = styled.p`
+  font-size: 12px;
+  color: #ff0000;
+  text-align: center;
 `;
 
 export default RightSide;

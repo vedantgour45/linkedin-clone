@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import ReactPlayer from "react-player";
-import { db, storage } from "../firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { uploadToCloudinary } from "../utils/cloudinary";
 import toast from "react-hot-toast";
 
 const PostModal = ({
   data,
   modalOpen,
   setModalOpen,
-  handleClick,
   addNewPost,
   setLoading,
+  loading,
 }) => {
   const [editorText, setEditorText] = useState("");
   const [shareImage, setShareImage] = useState("");
@@ -22,93 +22,75 @@ const PostModal = ({
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-
-    if (file === "" || file === undefined) {
-      toast.error("Invalid file type", typeof file);
-      return;
-    }
+    if (!file) return;
     setShareImage(file);
   };
 
   const handlePdfFileChange = (e) => {
     const file = e.target.files[0];
-
-    if (file === "" || file === undefined) {
-      toast.error("Invalid file type", typeof file);
-      return;
-    }
+    if (!file) return;
     setPdfFile(file);
   };
 
-  // switching between image and video
   const switchAssetArea = (area) => {
-    setShareImage("");
-    setVideoLink("");
     setAssetArea(area);
   };
 
-  // Closing the post popup
-  const handelClose = (e) => {
+  const handleClose = () => {
     setEditorText("");
     setShareImage("");
     setVideoLink("");
+    setPdfFile(null);
     setAssetArea("");
-    handleClick(e);
+    setModalOpen(false);
   };
 
   const createPost = async (post) => {
     setLoading(true);
     try {
       if (shareImage) {
-        const storageRef = ref(storage, `userPostImages/${shareImage.name}`);
-        const snapshot = await uploadBytes(storageRef, shareImage);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-
+        const downloadURL = await uploadToCloudinary(
+          shareImage,
+          "userPostImages",
+        );
         post.image = downloadURL;
       }
 
       if (pdfFile) {
-        const storageRef = ref(storage, `userPostFile/${pdfFile.name}`);
-        const snapshot = await uploadBytes(storageRef, pdfFile);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-
+        const downloadURL = await uploadToCloudinary(pdfFile, "userPostFile");
         post.file = downloadURL;
       }
 
       const userPostsCollectionRef = collection(db, "posts");
-      const docRef = await addDoc(userPostsCollectionRef, post);
+      await addDoc(userPostsCollectionRef, post);
       addNewPost(post);
-      toast.success("Posted");
+      toast.success("Successfully posted!");
       setLoading(false);
+      handleClose();
     } catch (error) {
       toast.error("Error adding post");
+      setLoading(false);
     }
   };
 
-  // Post Details
   const handlePost = () => {
+    if (!editorText.trim()) return;
+
     const post = {
       userId: data.userID,
       user: data.name,
+      userImage: data.profilePicture || "",
+      userDescription: data.description || "",
       caption: editorText,
-      image: shareImage,
+      image: "",
       video: videoLink,
-      file: pdfFile,
+      file: null,
       date: new Date().toLocaleDateString(),
       time: new Date().toLocaleTimeString(),
+      timestamp: serverTimestamp(),
     };
 
-    // console.log(db);
-    // console.log(data);
-    console.log("Post details", post);
-
     createPost(post);
-
-    setEditorText("");
-    setShareImage("");
-    setVideoLink("");
-    setAssetArea("");
-    setModalOpen(false);
   };
 
   return (
@@ -118,125 +100,146 @@ const PostModal = ({
           <Content>
             <Header>
               <h2>Create a post</h2>
-              <button onClick={(e) => handelClose(e)}>
+              <button onClick={handleClose}>
                 <img src="/images/close-icon.svg" alt="close" />
               </button>
             </Header>
             <SharedContent>
               <UserInfo>
                 {data.profilePicture ? (
-                  <img src={data.profilePicture} alt="photo" />
+                  <img src={data.profilePicture} alt="user" />
                 ) : (
                   <img src="/images/user.svg" alt="user" />
                 )}
                 <div>
                   <p>{data.name}</p>
-                  <span>
-                    Post to Anyone
-                    <img src="/images/global.svg" alt="global" />
-                  </span>
+                  <button className="privacy-pill">
+                    <img src="/images/global.svg" alt="" />
+                    Anyone
+                    <img src="/images/down-icon.svg" alt="" className="down" />
+                  </button>
                 </div>
               </UserInfo>
               <Editor>
                 <textarea
                   value={editorText}
                   onChange={(e) => setEditorText(e.target.value)}
-                  placeholder="What's on your professional mind?"
+                  placeholder="What do you want to talk about?"
                   autoFocus={true}
                 />
-                {/* For Iamges */}
+
                 {assetArea === "image" && (
                   <UploadMedia>
                     <input
                       type="file"
                       name="media"
                       id="file"
+                      accept="image/*"
                       style={{ display: "none" }}
                       onChange={handleFileChange}
                     />
-                    <p>
-                      <label htmlFor="file">
-                        <span className="material-symbols-outlined">
-                          add_circle
-                        </span>
-                        Select photo to share
+                    {!shareImage ? (
+                      <label htmlFor="file" className="upload-btn">
+                        Select an image to share
                       </label>
-                    </p>
-                    {shareImage && (
-                      <img
-                        src={URL.createObjectURL(shareImage)}
-                        alt="uploaded-image"
-                      />
+                    ) : (
+                      <div className="preview">
+                        <img
+                          src={URL.createObjectURL(shareImage)}
+                          alt="Preview"
+                        />
+                        <button onClick={() => setShareImage("")}>
+                          Remove
+                        </button>
+                      </div>
                     )}
                   </UploadMedia>
                 )}
 
-                {/* For Video */}
                 {assetArea === "media" && (
-                  <div style={{ textAlign: "center" }}>
+                  <VideoInputArea>
                     <input
                       type="text"
-                      placeholder="Please input video link"
+                      placeholder="Paste a video link here"
                       value={videoLink}
                       onChange={(e) => setVideoLink(e.target.value)}
                     />
                     {videoLink && (
                       <ReactPlayer
-                        width={"100%"}
-                        height={"auto"}
+                        width="100%"
+                        height="auto"
                         url={videoLink}
+                        controls
                       />
                     )}
-                  </div>
+                  </VideoInputArea>
                 )}
 
-                {/* For File/PDF */}
                 {assetArea === "pdf" && (
                   <UploadMedia>
                     <input
                       type="file"
-                      name="pdf"
                       id="pdfFile"
                       style={{ display: "none" }}
-                      accept=".pdf"
+                      accept="application/pdf"
                       onChange={handlePdfFileChange}
                     />
-                    <p>
-                      <label htmlFor="pdfFile">
-                        <span className="material-symbols-outlined">
-                          attach_file
-                        </span>
-                        Select PDF to share
+                    {!pdfFile ? (
+                      <label htmlFor="pdfFile" className="upload-btn">
+                        Select a PDF to share
                       </label>
-                    </p>
-                    {pdfFile && <p>Selected PDF: {pdfFile.name}</p>}
+                    ) : (
+                      <div className="pdf-preview">
+                        <div className="preview-header">
+                          <p>📎 {pdfFile.name}</p>
+                          <button onClick={() => setPdfFile(null)}>
+                            Remove
+                          </button>
+                        </div>
+                        <iframe
+                          src={URL.createObjectURL(pdfFile)}
+                          width="100%"
+                          height="300px"
+                          title="PDF Preview"
+                          style={{
+                            borderRadius: "4px",
+                            border: "1px solid #e0e0e0",
+                          }}
+                        />
+                      </div>
+                    )}
                   </UploadMedia>
                 )}
               </Editor>
             </SharedContent>
-            <SharedCreation>
+            <Footer>
               <AttachAssets>
-                <AssetButton onClick={() => switchAssetArea("image")}>
-                  <p>Photo</p>
-                  <img src="/images/media.svg" alt="media" />
+                <AssetButton
+                  onClick={() => switchAssetArea("image")}
+                  title="Add a photo"
+                >
+                  <img src="/images/media.svg" alt="" />
                 </AssetButton>
-                <AssetButton onClick={() => switchAssetArea("media")}>
-                  <p>Video</p>
-                  <img src="/images/video.svg" alt="video" />
+                <AssetButton
+                  onClick={() => switchAssetArea("media")}
+                  title="Add a video"
+                >
+                  <img src="/images/video.svg" alt="" />
                 </AssetButton>
-                <AssetButton onClick={() => switchAssetArea("pdf")}>
-                  <p>File</p>
-                  <img src="/images/media.svg" alt="pdf" />
+                <AssetButton
+                  onClick={() => switchAssetArea("pdf")}
+                  title="Add a document"
+                >
+                  <img src="/images/article.svg" alt="" />
                 </AssetButton>
               </AttachAssets>
               <PostButton
-                disabled={!editorText ? true : false}
+                disabled={!editorText.trim() || loading}
                 onClick={handlePost}
               >
-                <img src="/images/rocket.png" alt="post" />
-                <p>Post</p>
+                {loading ? "Posting..." : "Post"}
               </PostButton>
-            </SharedCreation>
+            </Footer>
           </Content>
         </Container>
       )}
@@ -251,52 +254,47 @@ const Container = styled.div`
   right: 0;
   bottom: 0;
   z-index: 999;
-  color: #000000;
-  backdrop-filter: blur(3px);
-  background-color: rgba(0, 0, 0, 0.8);
-  animation: fadeIn 0.3s;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 80px;
+  animation: fadeIn 0.2s ease-out;
 `;
 
 const Content = styled.div`
-  width: 90%;
+  width: 100%;
   max-width: 552px;
   background-color: #fff;
-  max-height: 90%;
-  overflow: initial;
-  border-radius: 15px;
+  border-radius: 8px;
   position: relative;
   display: flex;
   flex-direction: column;
-  top: 50%;
-  transform: translateY(-50%);
-  margin: 0 auto;
-  margin-inline: auto;
-  animation: fadeIn 0.3s;
+  max-height: 90vh;
 `;
 
 const Header = styled.div`
-  display: block;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-  font-size: 16px;
-  line-height: 1.5;
-  color: rgba(0, 0, 0, 0.6);
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--linkedin-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  button {
-    height: 40px;
-    width: 40px;
-    min-width: auto;
-    color: rgba(0, 0, 0, 0.15);
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
+  h2 {
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--linkedin-text);
+  }
 
-    svg,
+  button {
+    padding: 8px;
+    border-radius: 50%;
+    &:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
     img {
-      pointer-events: none;
+      width: 24px;
+      opacity: 0.6;
     }
   }
 `;
@@ -304,11 +302,8 @@ const Header = styled.div`
 const SharedContent = styled.div`
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
   overflow-y: auto;
-  vertical-align: baseline;
-  background: transparent;
-  padding: 8px 0;
+  padding: 12px 0;
 `;
 
 const UserInfo = styled.div`
@@ -316,180 +311,161 @@ const UserInfo = styled.div`
   align-items: center;
   padding: 12px 24px;
 
-  svg,
   img {
     width: 48px;
     height: 48px;
-    background-clip: content-box;
-    border: 2px solid transparent;
     border-radius: 50%;
+    margin-right: 12px;
   }
 
-  p {
-    font-size: 16px;
-    font-weight: 600;
-    margin-left: 5px;
-  }
-  span {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(0, 0, 0, 0.6);
-    margin-left: 5px;
-
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    color: rgba(0, 0, 0, 0.6);
-    margin-top: -15px;
-
-    img {
-      width: 12px;
+  div {
+    p {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--linkedin-text);
     }
-  }
-`;
+    .privacy-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border: 1px solid var(--linkedin-text-secondary);
+      border-radius: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--linkedin-text-secondary);
+      margin-top: 4px;
 
-const SharedCreation = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 24px 12px 16px;
-  font-weight: 600;
-  color: rgba(0, 0, 0 0.6);
-
-  @media (max-width: 350px) {
-    gap: 20px;
-    flex-direction: column;
-  }
-`;
-
-const AssetButton = styled.button`
-  cursor: pointer;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column-reverse;
-  gap: 5px;
-  height: 40px;
-  min-width: auto;
-  color: rgba(0, 0, 0, 0.7);
-  background-color: rgba(0, 0, 0, 0.07);
-  border-radius: 50%;
-  padding: 18%;
-  margin-right: 10px;
-  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-
-  &:hover {
-    box-shadow: none;
-  }
-
-  p {
-    margin-top: -3px;
-    font-size: 12px;
-  }
-
-  img {
-    filter: grayscale(100%);
-  }
-`;
-
-const AttachAssets = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  border-radius: 50%;
-  cursor: pointer;
-
-  &:hover {
-    box-shadow: none;
-  }
-
-  ${AssetButton} {
-    width: 40px;
-  }
-`;
-
-const PostButton = styled.button`
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: ${(props) => (props.disabled ? "rgba(0, 0, 0, 0.6)" : "#fff")};
-  background: ${(props) =>
-    props.disabled ? "rgba(0, 0, 0, 0.06)" : "#0a66c2"};
-  padding: 3px 9px;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
-    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
-
-  p {
-    font-size: 16px;
-    font-weight: 900px;
-  }
-
-  img {
-    width: 30px;
-    height: 30px;
-  }
-
-  &:hover {
-    box-shadow: none;
-  }
-`;
-
-const UploadMedia = styled.div`
-  text-align: center;
-
-  label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    cursor: pointer;
-    color: rgba(0, 0, 0, 0.7);
-
-    span {
-      font-size: 17px;
-      margin-top: 2px;
+      img {
+        width: 14px;
+        height: 14px;
+        margin: 0;
+      }
+      .down {
+        width: 12px;
+      }
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
     }
-  }
-  img {
-    width: 100%;
   }
 `;
 
 const Editor = styled.div`
   padding: 12px 24px;
-
   textarea {
     width: 100%;
-    min-height: 100px;
+    min-height: 60px;
     resize: none;
-    font-size: 16px;
-    line-height: 1.5;
+    font-size: 18px;
     border: none;
     outline: none;
+    &::placeholder {
+      color: var(--linkedin-text-secondary);
+    }
+  }
+`;
+
+const UploadMedia = styled.div`
+  margin-top: 4px;
+  .upload-btn {
+    display: block;
+    padding: 24px;
+    border: 2px dashed var(--linkedin-border);
+    border-radius: 8px;
+    text-align: center;
+    color: var(--linkedin-blue);
+    font-weight: 600;
+    cursor: pointer;
+    &:hover {
+      background: rgba(10, 102, 194, 0.05);
+    }
   }
 
-  div {
-    &:last-child {
-      input {
-        padding: 5px;
-        color: rgba(0, 0, 0, 0.7);
+  .preview {
+    position: relative;
+    img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    }
+  }
+
+  .pdf-preview {
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      p {
+        font-size: 14px;
+        color: var(--linkedin-text-secondary);
+        font-weight: 500;
+      }
+      button {
+        background: none;
+        color: #f00;
+        font-weight: 600;
+        font-size: 13px;
+        &:hover {
+          text-decoration: underline;
+        }
       }
     }
   }
+`;
 
-  ${UploadMedia} {
-    label {
-      cursor: pointer;
-    }
+const VideoInputArea = styled.div`
+  margin-top: 4px;
+  input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--linkedin-border);
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+`;
 
-    img {
-      border-radius: 15px;
-    }
+const Footer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 24px 12px;
+`;
+
+const AttachAssets = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const AssetButton = styled.button`
+  padding: 8px;
+  border-radius: 50%;
+  &:hover {
+    background: rgba(0, 0, 0, 0.08);
+  }
+  img {
+    width: 24px;
+    opacity: 0.6;
+  }
+`;
+
+const PostButton = styled.button`
+  border-radius: 20px;
+  padding: 6px 16px;
+  background: ${(props) =>
+    props.disabled ? "#e0e0e0" : "var(--linkedin-blue)"};
+  color: ${(props) => (props.disabled ? "rgba(0,0,0,0.3)" : "#fff")};
+  font-weight: 600;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  transition: all 0.2s;
+  min-width: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover:not(:disabled) {
+    background: var(--linkedin-blue-hover);
   }
 `;
 

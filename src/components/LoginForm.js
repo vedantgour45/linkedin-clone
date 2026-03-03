@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
@@ -9,200 +9,234 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // useEffect(() => {
-  //   const user = localStorage.getItem("user");
-
-  //   if (user) {
-  //     const parsedUser = JSON.parse(user);
-  //     // navigate("/home");
-  //   }
-  // }, []);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    setErrorMessage("");
-
-    if (!email || !password) {
-      setErrorMessage("All fields are mandatory");
-    }
-
-    if (!email.includes("@")) {
-      setErrorMessage("Please enter a valid email address.");
-    }
-
-    if (password.length < 6) {
-      setErrorMessage("The password must be at least six characters long.");
-    }
+    if (!email || !password) return;
 
     setLoading(true);
-
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(() => {
         setLoading(false);
-        // localStorage.setItem("user", JSON.stringify(userCredential.user));
         navigate("/home");
-        toast.success("Logged in successfully");
+        toast.success("Signed in successfully");
       })
       .catch((error) => {
-        toast.error("User does not exist");
-        console.log(
-          "user does not exist, please sign up to create an account",
-          error.message
-        );
+        setLoading(false);
+        toast.error("Invalid credentials or user doesn't exist");
+        console.error(error);
       });
-
-    setEmail("");
-    setPassword("");
   };
 
   return (
     <Container>
-      <Head>
-        <button onClick={() => navigate("/")}>
-          <span className="material-symbols-outlined">arrow_back_ios_new</span>
-          <img src="/images/login-logo.svg" alt="logo" />
-        </button>
-      </Head>
-      <form onSubmit={handleLogin}>
-        <Form>
-          <Card>
-            <div>
-              <h1>Sign in</h1>
-              <p>Stay updated on your professional world</p>
-            </div>
-            <div>
+      <header>
+        <img
+          src="/images/login-logo.svg"
+          alt="LinkedIn"
+          onClick={() => navigate("/")}
+        />
+      </header>
+
+      <FormCard>
+        <TitleSection>
+          <h1>Sign in</h1>
+          <p>Stay updated on your professional world</p>
+        </TitleSection>
+
+        <form onSubmit={handleLogin}>
+          <InputGroup>
+            <input
+              type="email"
+              placeholder="Email or Phone"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </InputGroup>
+
+          <InputGroup>
+            <PasswordWrapper>
               <input
-                type="text"
-                placeholder="Email"
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
-            </div>
-            {errorMessage && <Error>{errorMessage}</Error>}
-            <button type="submit" disabled={loading}>
-              {loading ? (
-                <img src="/images/dots-loading.svg" alt="loading" />
-              ) : (
-                <p>Sign in</p>
-              )}
-            </button>
-          </Card>
-        </Form>
-      </form>
+              <ToggleButton
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </ToggleButton>
+            </PasswordWrapper>
+          </InputGroup>
+
+          <ForgotPassword>Forgot password?</ForgotPassword>
+
+          <SignInBtn type="submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign in"}
+          </SignInBtn>
+        </form>
+
+        <Divider>
+          <span>or</span>
+        </Divider>
+
+        <JoinBtn onClick={() => navigate("/signup-page")}>
+          New to LinkedIn? Join now
+        </JoinBtn>
+      </FormCard>
     </Container>
   );
 };
 
 const Container = styled.div`
-  padding-top: 52px;
-  max-width: 100%;
-  background-color: #f4f2ee;
-  height: 100vh;
-`;
-
-const Head = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 10%;
-
-  img {
-    width: 60px;
-  }
-
-  button {
-    cursor: pointer;
-    display: inline-flex;
-    gap: 10px;
-    border: none;
-    outline: none;
-    color: #0a67c2;
-    border-radius: 10px;
-    padding: 10px 24px;
-
-    span {
-      font-size: 17px;
-    }
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.08);
-    }
-  }
-`;
-
-const Form = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const Card = styled.div`
+  min-height: 100vh;
+  background-color: #f3f2f1;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
-  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-  gap: 10px;
-  /* align-items: center; */
+  align-items: center;
   padding: 24px;
-  background-color: #fff;
-  border-radius: 10px;
-  min-height: 300px;
 
-  div {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    h1 {
-      font-size: 30px;
-      font-weight: 500;
-    }
-
-    &:nth-child(2) {
-      input {
-        font-size: 18px;
-        padding: 15px;
-        border-radius: 5px;
-      }
-    }
-  }
-
-  button {
-    font-size: 17px;
-    background-color: #0a67c2;
-    border: none;
-    outline: none;
-    color: #fff;
-    border-radius: 25px;
-    display: flex;
-    justify-content: center;
-
-    &:hover {
-      background-color: #054586;
-      cursor: pointer;
-    }
-
-    p {
-      padding: 14px;
-    }
-
+  header {
+    margin-bottom: 24px;
     img {
-      width: 40px;
+      width: 100px;
+      cursor: pointer;
     }
   }
 `;
 
-const Error = styled.p`
+const FormCard = styled.div`
+  background: #fff;
+  padding: 32px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+`;
+
+const TitleSection = styled.div`
+  margin-bottom: 24px;
+  h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.9);
+  }
+  p {
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.9);
+    margin-top: 4px;
+  }
+`;
+
+const InputGroup = styled.div`
+  margin-bottom: 16px;
+  input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    font-size: 18px;
+    &:focus {
+      border: 2px solid var(--linkedin-blue);
+      outline: none;
+    }
+  }
+`;
+
+const PasswordWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input {
+    padding-right: 60px !important;
+  }
+`;
+
+const ToggleButton = styled.button`
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
   font-size: 14px;
-  color: red;
+  color: var(--linkedin-blue);
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 10;
+  padding: 4px 8px;
+  border-radius: 4px;
+
+  &:hover {
+    background: rgba(10, 102, 194, 0.1);
+    text-decoration: underline;
+  }
+`;
+
+const ForgotPassword = styled.a`
+  display: block;
+  margin-bottom: 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--linkedin-blue);
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const SignInBtn = styled.button`
+  width: 100%;
+  padding: 16px;
+  background: var(--linkedin-blue);
+  color: #fff;
+  border-radius: 28px;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.2s;
+  &:hover {
+    background: var(--linkedin-blue-hover);
+  }
+  &:disabled {
+    background: #e0e0e0;
+    cursor: not-allowed;
+  }
+`;
+
+const Divider = styled.div`
+  display: flex;
+  align-items: center;
   text-align: center;
+  color: var(--linkedin-text-secondary);
+  margin: 24px 0;
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  span {
+    padding: 0 10px;
+    font-size: 14px;
+  }
+`;
+
+const JoinBtn = styled.button`
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--linkedin-blue);
+  color: var(--linkedin-blue);
+  border-radius: 28px;
+  font-size: 16px;
+  font-weight: 600;
+  &:hover {
+    background: rgba(10, 102, 194, 0.1);
+  }
 `;
 
 export default LoginForm;
