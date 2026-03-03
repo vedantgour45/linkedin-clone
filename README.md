@@ -1,3 +1,39 @@
+# Linkedin CLone
+
+LinkedIn Clone is a meticulously crafted web application developed with React for the frontend and Firebase for backend services. It faithfully replicates the features and functionality of the renowned professional networking platform, LinkedIn.
+
+## Introduction
+
+Users have the power to share photos, videos, and files, making it a versatile platform for professional content sharing. Moreover, it is a fully responsive clone, designed using styled components, React, and Firebase to ensure a seamless and enjoyable user experience.
+
+## Technologies Used
+
+- React.js: A JavaScript library for building user interfaces.
+- React Router: For routing within the application.
+- Styled Components: For styling components.
+- Firebase: For authentication, database, and storage.
+- react-hot-toast: For displaying toast notifications.
+- axios: For making HTTP requests.
+- react-player: For playing videos.
+
+## Screenshots
+
+Here are a few screenshots to give you a glimpse of what to expect:
+
+![image](https://github.com/vedantgour45/linkedin-clone/assets/113295244/a9cb782e-8e7d-46e5-be17-9d80156e4413)
+![image](https://github.com/vedantgour45/linkedin-clone/assets/113295244/034209e8-9370-487f-8ce7-34d56bc85a3b)
+![image](https://github.com/vedantgour45/linkedin-clone/assets/113295244/31a73bfe-b713-43cd-b762-33e1dbbc001d)
+![image](https://github.com/vedantgour45/linkedin-clone/assets/113295244/72ced289-940f-41f9-bce5-18a8de019358)
+
+
+
+## Deployed Version
+
+Check out the deployed version of the this project and try yourself [here](https://linkedin-clone-vg.netlify.app/).
+
+========================================================================================================================================================================================
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
