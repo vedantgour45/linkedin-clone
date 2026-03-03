@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { auth, db, storage } from "../firebase";
+import { auth, db } from "../firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { collection, addDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadToCloudinary } from "../utils/cloudinary";
 import toast from "react-hot-toast";
 
 const SignUpForm = () => {
@@ -28,17 +28,13 @@ const SignUpForm = () => {
 
   const pushPhotoToDB = async () => {
     if (photo) {
-      const storageRef = ref(storage, `userProfileImages/${photo.name}`);
       try {
-        const snapshot = await uploadBytes(storageRef, photo);
-        const url = await getDownloadURL(snapshot.ref);
-
+        const url = await uploadToCloudinary(photo, "userProfileImages");
         setImageURL(url);
         console.log("photo-url", url);
         return url;
-        // console.log("db-url", imageURL);
-      } catch {
-        setErrorMessage("Failed to Upload Image");
+      } catch (error) {
+        setErrorMessage(error.message || "Failed to Upload Image");
       }
     }
   };
@@ -92,7 +88,7 @@ const SignUpForm = () => {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
-        password
+        password,
       );
       const user = userCredential.user;
 
@@ -113,12 +109,12 @@ const SignUpForm = () => {
       if (error.code === "auth/email-already-in-use") {
         // Handle the specific error case where the email is already in use
         setErrorMessage(
-          "Email is already in use. Please choose a different email."
+          "Email is already in use. Please choose a different email.",
         );
       } else {
         // Handle other errors
         setErrorMessage(
-          "Error creating an account. Please try again - " + error.message
+          "Error creating an account. Please try again - " + error.message,
         );
       }
     }

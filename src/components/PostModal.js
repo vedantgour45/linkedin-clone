@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import ReactPlayer from "react-player";
-import { db, storage } from "../firebase";
+import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadToCloudinary } from "../utils/cloudinary";
 import toast from "react-hot-toast";
 
 const PostModal = ({
@@ -60,18 +60,15 @@ const PostModal = ({
     setLoading(true);
     try {
       if (shareImage) {
-        const storageRef = ref(storage, `userPostImages/${shareImage.name}`);
-        const snapshot = await uploadBytes(storageRef, shareImage);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-
+        const downloadURL = await uploadToCloudinary(
+          shareImage,
+          "userPostImages",
+        );
         post.image = downloadURL;
       }
 
       if (pdfFile) {
-        const storageRef = ref(storage, `userPostFile/${pdfFile.name}`);
-        const snapshot = await uploadBytes(storageRef, pdfFile);
-        const downloadURL = await getDownloadURL(snapshot.ref);
-
+        const downloadURL = await uploadToCloudinary(pdfFile, "userPostFile");
         post.file = downloadURL;
       }
 
@@ -377,7 +374,8 @@ const AssetButton = styled.button`
   border-radius: 50%;
   padding: 18%;
   margin-right: 10px;
-  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+  box-shadow:
+    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
 
   &:hover {
@@ -421,7 +419,8 @@ const PostButton = styled.button`
   padding: 3px 9px;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+  box-shadow:
+    rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
     rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
 
   p {
