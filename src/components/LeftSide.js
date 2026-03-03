@@ -7,7 +7,7 @@ const LeftSide = ({ data }) => {
       <ArtCard>
         <UserInfo>
           <CardBackground />
-          <a>
+          <a href="/home">
             <Photo>
               {data?.profilePicture ? (
                 <img src={data.profilePicture} alt="Profile" />
@@ -17,7 +17,7 @@ const LeftSide = ({ data }) => {
             </Photo>
             <Link>{data?.name || "Welcome!"}</Link>
           </a>
-          <a>
+          <a href="/home">
             <Headline>
               {data?.description || "Build your professional profile"}
             </Headline>
@@ -25,7 +25,7 @@ const LeftSide = ({ data }) => {
         </UserInfo>
 
         <Widget>
-          <a>
+          <a href="/home">
             <div>
               <span>Profile viewers</span>
               <span className="count">27</span>
@@ -38,7 +38,7 @@ const LeftSide = ({ data }) => {
         </Widget>
 
         <PremiumWidget>
-          <a href="#">
+          <a href="/home">
             <span className="label">Achieve 4x more profile visits</span>
             <div className="premium-link">
               <img src="/images/yellowbox.svg" alt="" />

@@ -136,7 +136,7 @@ const Main = ({ data }) => {
           return (
             <Article key={`post-${index}`} className="fade-in">
               <SharedActor>
-                <a>
+                <a href="/home">
                   <img src={displayImage} alt="" />
                   <div>
                     <span className="name">{displayName}</span>
@@ -245,7 +245,7 @@ const Main = ({ data }) => {
         {dummyPosts.map((post, index) => (
           <Article key={`dummy-${index}`} className="fade-in">
             <SharedActor>
-              <a>
+              <a href="/home">
                 <img
                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(post.name)}&background=random`}
                   alt=""

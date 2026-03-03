@@ -72,8 +72,9 @@ const Login = () => {
             </EmailBtn>
             <Terms>
               By clicking Continue, you agree to LinkedIn's{" "}
-              <a href="#">User Agreement</a>, <a href="#">Privacy Policy</a>,
-              and <a href="#">Cookie Policy</a>.
+              <a href="/login-page">User Agreement</a>,{" "}
+              <a href="/login-page">Privacy Policy</a>, and{" "}
+              <a href="/login-page">Cookie Policy</a>.
             </Terms>
           </AuthBox>
         </HeroContent>
@@ -92,23 +93,23 @@ const Login = () => {
           <FooterLinks>
             <div className="column">
               <h4>General</h4>
-              <a href="#">Sign Up</a>
-              <a href="#">Help Center</a>
-              <a href="#">About</a>
-              <a href="#">Careers</a>
+              <a href="/signup-page">Sign Up</a>
+              <a href="/">Help Center</a>
+              <a href="/">About</a>
+              <a href="/">Careers</a>
             </div>
             <div className="column">
               <h4>Browse</h4>
-              <a href="#">Learning</a>
-              <a href="#">Jobs</a>
-              <a href="#">Salary</a>
-              <a href="#">Mobile</a>
+              <a href="/">Learning</a>
+              <a href="/">Jobs</a>
+              <a href="/">Salary</a>
+              <a href="/">Mobile</a>
             </div>
             <div className="column">
               <h4>Business</h4>
-              <a href="#">Talent</a>
-              <a href="#">Marketing</a>
-              <a href="#">Sales</a>
+              <a href="/">Talent</a>
+              <a href="/">Marketing</a>
+              <a href="/">Sales</a>
             </div>
           </FooterLinks>
         </FooterContent>

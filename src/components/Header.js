@@ -86,28 +86,28 @@ const Header = ({ setShowSideNav }) => {
             </NavList>
 
             <NavList>
-              <a href="#">
+              <a href="/home">
                 <img src="/images/nav-network.svg" alt="My Network" />
                 <span>My Network</span>
               </a>
             </NavList>
 
             <NavList>
-              <a href="#">
+              <a href="/home">
                 <img src="/images/nav-jobs.svg" alt="Jobs" />
                 <span>Jobs</span>
               </a>
             </NavList>
 
             <NavList>
-              <a href="#">
+              <a href="/home">
                 <img src="/images/nav-messaging.svg" alt="Messaging" />
                 <span>Messaging</span>
               </a>
             </NavList>
 
             <NavList>
-              <a href="#">
+              <a href="/home">
                 <img src="/images/nav-notifications.svg" alt="Notifications" />
                 <span>Notifications</span>
               </a>
@@ -117,7 +117,7 @@ const Header = ({ setShowSideNav }) => {
               onMouseOver={() => setShowSignOut(true)}
               onMouseOut={() => setShowSignOut(false)}
             >
-              <a>
+              <a href="/home">
                 {data.profilePicture ? (
                   <img src={data.profilePicture} alt="" />
                 ) : (
@@ -141,7 +141,7 @@ const Header = ({ setShowSideNav }) => {
             </User>
 
             <PremiumLink>
-              <a href="#">Reactivate Premium: 50% Off</a>
+              <a href="/home">Reactivate Premium: 50% Off</a>
             </PremiumLink>
           </NavListWrap>
         </Nav>
@@ -367,13 +367,6 @@ const User = styled(NavList)`
     height: 12px;
     margin-left: 2px;
     opacity: 1;
-  }
-`;
-
-const Business = styled(User)`
-  border-left: 1px solid var(--linkedin-border);
-  @media (max-width: 768px) {
-    border: none;
   }
 `;
 
