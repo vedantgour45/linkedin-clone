@@ -1,56 +1,43 @@
-import lazyLoading from "./Post-Images/lazy-loading.png";
-import cssGrid from "./Post-Images/css-grid.png";
-import cssFlex from "./Post-Images/css-flexbox.png";
-
 const dummyPosts = [
   {
-    name: "Shubham Soni",
-    description:
-      "Frontend Engineer-II @Amazon | 75K+ linkedin | Career Advisor | 21M+ content views | Mentor | Freelancer",
+    name: "Alex Rivera",
+    description: "Senior Frontend Architect | React & Next.js Specialist",
     caption:
-      "Responsive Web Design Made Easy with CSS Grid\n\nCSS Grid is a game-changer in responsive web design. In this post, we delve into CSS Grid's capabilities, demonstrating how it simplifies layout design. You'll learn about grid containers, grid items, and various layout techniques. Say goodbye to complex float-based layouts and embrace the power of CSS Grid. Create responsive web applications that adapt beautifully to different screen sizes and devices.",
-    image: cssGrid,
+      "🚀 Next.js 15 is changing the game for server-side rendering! The speed improvements with the new caching strategies are insane. If you haven't tried the new App Router features, you're missing out on a lot of developer experience improvements.\n\nWhat are your thoughts on the new partial prerendering?",
+    image: "", // user will attach
     video: "",
-    date: "2023-10-28",
+    date: "2026-03-01",
+    time: "10:30 AM",
   },
   {
-    name: "Aniket Khandelwal",
-    description: "Frontend Developer @ Plivo | Imagine to Create",
+    name: "Sarah Chen",
+    description: "AI Researcher @ DeepMind | Engineering Lead",
     caption:
-      "Creating a Simple HTML5 Webpage: Step-by-Step Guide\n\nHTML5 is the foundation of web development. This post provides a step-by-step guide to creating a basic HTML5 webpage. You'll learn about HTML elements, document structure, and best practices. Whether you're a beginner or need a refresher, this guide ensures you have a strong grasp of HTML. Start your web development journey by mastering the building blocks of the web.",
-    image: "",
-    video: "https://www.youtube.com/watch?v=PlxWf493en4",
-    date: "2023-10-27",
-  },
-  {
-    name: "Akshay Saini",
-    description: "Founder, NamasteDev | Teacher | YouTuber",
-    caption: `💎 React Lazy Loading
-
-      ⛱ In React.js, this technique is used to improve application performance by loading components only on demand, that is, only when they are really needed. And this is done using the resources: lazy (React.lazy() function )and Suspense (Component).
-      
-      ❤️️ Give it a like if you think it's helpful! 👍`,
-    image: lazyLoading,
+      "🤖 LLMs are no longer just for chat. We are seeing a massive shift towards Agentic Workflows where AI can actually perform multi-step tasks autonomously. \n\nIntegrating these agents into React apps is where the real magic happens. Check out how we use Vercel AI SDK to build streaming interfaces for complex agents.",
+    image: "", // user will attach
     video: "",
-    date: "2023-10-25",
+    date: "2026-02-28",
+    time: "02:15 PM",
   },
   {
-    name: "Bhavika Sharma",
-    description: "Learning new skills",
+    name: "Marcus Thorne",
+    description: "UI/UX Designer | Design Systems Junkie",
     caption:
-      "React vs. Angular: Choosing the Right Frontend Framework\n\nChoosing the right frontend framework is crucial for web development projects. In this post, we compare React and Angular, two popular options. We explore their strengths, weaknesses, and use cases. Whether you prioritize flexibility or an opinionated structure, this comparison will help you make an informed decision. Select the framework that best aligns with your project goals.",
-    image: "",
-    video: "https://www.youtube.com/watch?v=CynLOUL9vsU",
-    date: "2023-10-26",
-  },
-  {
-    name: "Bob Barnard",
-    description: "Frontend Developer | React redux, Web Design, JavaScript",
-    caption:
-      "Unlocking the Power of CSS Flexbox: A Comprehensive Guide\n\nCSS Flexbox is a layout model that simplifies the design of complex web layouts. This comprehensive guide dives deep into the world of Flexbox. Learn about containers, items, alignment, and responsive design. With Flexbox, you can achieve intricate layouts with minimal code. Enhance your web design skills and create visually stunning web pages.",
-    image: cssFlex,
+      "Glassmorphism + Bento Grids = The UI trend of 2026? 🎨\n\nI've been experimenting with subtle blur effects and card layouts for a new SaaS project. It feels premium and extremely clean. \n\nWhat do you guys think? Is the Bento grid here to stay or just a passing trend?",
+    image: "", // user will attach
     video: "",
-    date: "2023-10-25",
+    date: "2026-02-25",
+    time: "09:00 AM",
+  },
+  {
+    name: "Elena Vance",
+    description: "Full Stack Developer | AI Enthusiast",
+    caption:
+      "Just integrated GPT-5 into my latest project for real-time code reviews. The level of reasoning is just phenomenal. It's like having a senior dev sitting right next to you at all times. \n\nThe future of coding is collaborative with AI. 💻✨",
+    image: "", // user will attach
+    video: "",
+    date: "2026-02-20",
+    time: "11:45 AM",
   },
 ];
 

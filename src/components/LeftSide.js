@@ -1,7 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { auth } from "../firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 
 const LeftSide = ({ data }) => {
   return (
@@ -9,84 +7,70 @@ const LeftSide = ({ data }) => {
       <ArtCard>
         <UserInfo>
           <CardBackground />
-
-          {data ? (
-            <a>
-              {data.profilePicture ? (
-                <Photo>
-                  <img src={data.profilePicture} alt="profile" />
-                </Photo>
+          <a>
+            <Photo>
+              {data?.profilePicture ? (
+                <img src={data.profilePicture} alt="Profile" />
               ) : (
-                <Photo>
-                  <img src="/images/photo.svg" alt="profile" />
-                </Photo>
+                <img src="/images/user.svg" alt="Profile" />
               )}
-              <Link>{data.name}</Link>
-            </a>
-          ) : (
-            <a>
-              <Photo />
-              <Link>"Hello User"</Link>
-            </a>
-          )}
-          {data ? (
-            <a>
-              <AddPhotoText>{data.description}</AddPhotoText>
-            </a>
-          ) : (
-            <a>
-              <AddPhotoText>
-                Unlocking Professional Potential | Connecting Talent with
-                Opportunity
-              </AddPhotoText>
-            </a>
-          )}
+            </Photo>
+            <Link>{data?.name || "Welcome!"}</Link>
+          </a>
+          <a>
+            <Headline>
+              {data?.description || "Build your professional profile"}
+            </Headline>
+          </a>
         </UserInfo>
+
         <Widget>
           <a>
             <div>
-              <span>Connections</span>
-              <span>Grow your network</span>
-            </div>
-            <img src="/images/widget-icon.svg" alt="widget" />
-          </a>
-        </Widget>
-        <Widget>
-          <a className="paid">
-            <div>
-              <span>Access exclusive tools & insights</span>
+              <span>Profile viewers</span>
+              <span className="count">27</span>
             </div>
             <div>
-              <span>
-                <img src="/images/yellowbox.svg" alt="yellow-box" />
-              </span>
-              <span>Try premium for free</span>
+              <span>Post impressions</span>
+              <span className="count">775</span>
             </div>
           </a>
         </Widget>
+
+        <PremiumWidget>
+          <a href="#">
+            <span className="label">Achieve 4x more profile visits</span>
+            <div className="premium-link">
+              <img src="/images/yellowbox.svg" alt="" />
+              <span>Reactivate Premium: 50% Off</span>
+            </div>
+          </a>
+        </PremiumWidget>
+
         <Item>
           <span>
-            <img src="/images/item-icon.svg" alt="saved-items" />
-            My Items
+            <img src="/images/item-icon.svg" alt="" />
+            Saved items
           </span>
         </Item>
       </ArtCard>
+
       <CommunityCard>
-        <a>
+        <CommunityItem>
           <span>Groups</span>
-        </a>
-        <a>
+        </CommunityItem>
+        <CommunityItem>
+          <span>Newsletters</span>
+        </CommunityItem>
+        <CommunityItem>
           <span>
             Events
-            <img src="/images/plus-icon.svg" alt="plus-icon" />
+            <img src="/images/plus-icon.svg" alt="" />
           </span>
-        </a>
-        <a>
-          <span>Followed Hashtags</span>
-        </a>
-        <a>
+        </CommunityItem>
+        <DiscoverMore>
           <span>Discover more</span>
-        </a>
+        </DiscoverMore>
       </CommunityCard>
     </Container>
   );
@@ -101,59 +85,60 @@ const ArtCard = styled.div`
   overflow: hidden;
   margin-bottom: 8px;
   background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 0 0 1px rgb(0 0 0 / 15%), 0 0 0 rgb(0 0 0 / 20%);
+  border-radius: 8px;
   transition: box-shadow 83ms;
   position: relative;
-  border: none;
+  border: 1px solid var(--linkedin-border);
 `;
 
 const UserInfo = styled.div`
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid var(--linkedin-border);
   padding: 12px 12px 16px;
   word-wrap: break-word;
-  word-break: break-word;
 `;
 
 const CardBackground = styled.div`
-  background: url("/images/card-bg.svg");
+  background: url("https://static.licdn.com/aero-v1/networks/lbc/white/assets/images/placeholder-image-f0b4a4.png");
   background-position: center;
-  background-size: 462px;
+  background-size: cover;
   height: 54px;
   margin: -12px -12px 0;
 `;
 
 const Photo = styled.div`
-  cursor: pointer;
-  box-shadow: none;
   width: 72px;
   height: 72px;
+  box-sizing: border-box;
   background-clip: content-box;
-  background-color: #fff;
+  background-color: white;
   background-position: center;
   background-size: 60%;
-  border: 2px solid #fff;
+  background-repeat: no-repeat;
+  border: 2px solid white;
   margin: -38px auto 12px;
   border-radius: 50%;
-  aspect-ratio: 1 / 1;
+  overflow: hidden;
 
   img {
-    width: inherit;
-    height: inherit;
-    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 `;
 
 const Link = styled.div`
   font-size: 16px;
   line-height: 1.5;
-  color: rgba(0, 0, 0, 0.9);
+  color: var(--linkedin-text);
   font-weight: 600;
-  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
 `;
 
-const AddPhotoText = styled.div`
-  color: rgba(0, 0, 0, 0.7);
+const Headline = styled.div`
+  color: var(--linkedin-text-secondary);
   margin-top: 4px;
   font-size: 12px;
   line-height: 1.33;
@@ -161,101 +146,94 @@ const AddPhotoText = styled.div`
 `;
 
 const Widget = styled.div`
-  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-  padding-top: 12px;
-  padding-bottom: 12px;
-  transition-duration: 167ms;
-  font-weight: 500;
-  cursor: pointer;
+  border-bottom: 1px solid var(--linkedin-border);
+  padding: 12px 0;
 
   & > a {
     text-decoration: none;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 12px;
-  }
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.08);
-  }
-
-  div {
-    display: flex;
     flex-direction: column;
-    text-align: left;
-
-    span {
-      font-size: 12px;
-      line-height: 1.333;
-
-      &:first-child {
-        color: rgba(0, 0, 0, 0.6);
-      }
-
-      &:nth-child(2) {
-        color: rgba(0, 0, 0, 1);
-      }
-    }
-  }
-
-  svg {
-    color: rgba(0, 0, 0, 1);
-  }
-
-  .paid {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 8px;
 
     div {
-      &:last-child {
-        margin-top: 5px;
-        display: flex;
-        flex-direction: row;
-        gap: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 12px;
 
-        img {
-          width: 17px;
+      span {
+        font-size: 12px;
+        line-height: 1.333;
+        color: var(--linkedin-text-secondary);
+        font-weight: 600;
+
+        &.count {
+          color: #0a66c2;
         }
+      }
 
-        span {
-          &:last-child {
-            text-decoration: underline;
-
-            &:hover {
-              color: #0a66c2;
-            }
-          }
-        }
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.08);
       }
     }
   }
 `;
 
+const PremiumWidget = styled(Widget)`
+  .label {
+    font-size: 12px;
+    color: var(--linkedin-text-secondary);
+    display: block;
+    text-align: left;
+    padding: 0 12px;
+  }
+
+  .premium-link {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    padding: 4px 12px;
+
+    img {
+      width: 16px;
+    }
+    span {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--linkedin-text);
+      &:hover {
+        color: #0a66c2;
+      }
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+  }
+`;
+
 const Item = styled.a`
-  border-color: rgba(0, 0, 0, 0.8);
   text-align: left;
   padding: 12px;
   font-size: 12px;
   display: block;
-  transition-duration: 167ms;
-  font-weight: 500;
-  cursor: pointer;
+  font-weight: 600;
 
   span {
     display: flex;
     align-items: center;
-    gap: 5px;
-    color: rgba(0, 0, 0, 1);
-
-    svg {
-      color: rgba(0, 0, 0, 0.6);
+    gap: 8px;
+    color: var(--linkedin-text);
+    img {
+      width: 16px;
+      opacity: 0.6;
     }
   }
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.08);
+    cursor: pointer;
   }
 `;
 
@@ -264,42 +242,39 @@ const CommunityCard = styled(ArtCard)`
   text-align: left;
   display: flex;
   flex-direction: column;
+`;
 
-  a {
-    color: #000000;
-    padding: 7px;
-    font-size: 12px;
-    font-weight: 500;
-    color: #0a66c2;
-    cursor: pointer;
+const CommunityItem = styled.a`
+  color: #0a66c2;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
 
-    &:hover {
-      text-decoration: underline;
-    }
+  span {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-    span {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    text-decoration: underline;
+  }
+`;
 
-    &:last-child {
-      border-top: 1px solid rgba(0, 0, 0, 0.15);
-      padding: 12px;
-      color: rgba(0, 0, 0, 0.6);
-      display: flex;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 500;
-      transition-duration: 167ms;
-      font-weight: 500;
-      cursor: pointer;
+const DiscoverMore = styled.div`
+  border-top: 1px solid var(--linkedin-border);
+  padding: 12px;
+  color: var(--linkedin-text-secondary);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
 
-      &:hover {
-        text-decoration: none;
-        background-color: rgba(0, 0, 0, 0.08);
-      }
-    }
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: var(--linkedin-text);
   }
 `;
 

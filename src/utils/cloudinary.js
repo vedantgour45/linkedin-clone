@@ -25,7 +25,7 @@ export const uploadToCloudinary = async (file, folder = "linkedin-clone") => {
 
   try {
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
       {
         method: "POST",
         body: formData,

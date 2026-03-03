@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Header from "./components/Header";
@@ -8,6 +9,8 @@ import SignUpForm from "./components/SignUpForm";
 import { Toaster } from "react-hot-toast";
 
 function App() {
+  const [showSideNav, setShowSideNav] = useState(false);
+
   return (
     <div className="App">
       <Toaster position="top-center" />
@@ -18,8 +21,11 @@ function App() {
             path="/home"
             element={
               <div>
-                <Header />
-                <Home />
+                <Header setShowSideNav={setShowSideNav} />
+                <Home
+                  showSideNav={showSideNav}
+                  setShowSideNav={setShowSideNav}
+                />
               </div>
             }
           ></Route>

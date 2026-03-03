@@ -1,535 +1,393 @@
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { db, auth, provider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import toast from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const user = localStorage.getItem("user");
-  //   if (user) {
-  //     const parsedUser = JSON.parse(user);
-  //     navigate("/home");
-  //   }
-  // }, [navigate]);
-
-  const pushDataToDB = async (user) => {
+  const handleGoogleSignIn = async () => {
     try {
-      const userRef = collection(db, "UserInfo");
-      const { uid } = user;
-      // console.log(uid);
+      const userCredential = await signInWithPopup(auth, provider);
+      const user = userCredential.user;
 
-      await addDoc(userRef, {
-        userID: uid,
-        name: user.displayName,
-        email: user.email,
-        profilePicture: user.photoURL,
-        timeStamp: new Date(),
-        description:
-          "Unlocking Professional Potential | Connecting Talent with Opportunity",
-      });
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
+      if (user) {
+        // Check if user already exists in DB
+        const userRef = collection(db, "UserInfo");
+        const q = query(userRef, where("userID", "==", user.uid));
+        const querySnapshot = await getDocs(q);
 
-  const handleGoogleSignIn = () => {
-    signInWithPopup(auth, provider)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        // console.log(user);
-        if (user) {
-          // localStorage.setItem("user", JSON.stringify(user));
-          pushDataToDB(user);
-          navigate("/home");
-          toast.success("Signed up successfully");
+        if (querySnapshot.empty) {
+          await addDoc(userRef, {
+            userID: user.uid,
+            name: user.displayName,
+            email: user.email,
+            profilePicture: user.photoURL,
+            timeStamp: new Date(),
+            description: "Member at LinkedIn Clone",
+          });
         }
-      })
-      .catch((error) => console.log(error.message));
+
+        navigate("/home");
+        toast.success("Welcome, " + user.displayName);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Sign-in failed. Please try again.");
+    }
   };
 
   return (
     <Container>
       <Nav>
         <a href="/">
-          <img src="/images/login-logo.svg" alt="main-logo" />
+          <img src="/images/login-logo.svg" alt="LinkedIn" />
         </a>
-        <div>
-          <Join onClick={() => navigate("/signup-page")}>Join now</Join>
-          <SignIn onClick={() => navigate("/login-page")}>Sign in</SignIn>
-        </div>
+        <NavButtons>
+          <JoinButton onClick={() => navigate("/signup-page")}>
+            Join now
+          </JoinButton>
+          <SignInButton onClick={() => navigate("/login-page")}>
+            Sign in
+          </SignInButton>
+        </NavButtons>
       </Nav>
+
       <Section>
-        <Hero>
-          <h1>Welcome to your professional community</h1>
-          <img src="/images/login-hero.svg" alt="" />
-        </Hero>
-        <Form>
-          <Google onClick={handleGoogleSignIn}>
-            <img src="/images/google.svg" alt="" />
-            <h2>Sign in with Google</h2>
-          </Google>
-          <div>
-            <Download>
-              <a href="https://play.google.com/store/apps/details?id=com.linkedin.android&hl=en&gl=US">
-                <span className="material-symbols-outlined">smartphone</span>
-                <p>Download for phone</p>
-              </a>
-            </Download>
-            <Download>
-              <a href="https://apps.microsoft.com/detail/linkedin/9WZDNCRFJ4Q7?hl=en-us&gl=IN">
-                <span className="material-symbols-outlined">laptop_mac</span>
-                <p>Download for desktop</p>
-              </a>
-            </Download>
-          </div>
-          <Connection>
-            <h1>Connect with people who can help</h1>
-            <img src="/images/linkedin-connect.svg" alt="connect" />
-          </Connection>
-        </Form>
+        <HeroContent>
+          <Title>Welcome to your professional community</Title>
+          <AuthBox>
+            <GoogleBtn onClick={handleGoogleSignIn}>
+              <img src="/images/google.svg" alt="" />
+              Continue with Google
+            </GoogleBtn>
+            <Divider>
+              <span>or</span>
+            </Divider>
+            <EmailBtn onClick={() => navigate("/login-page")}>
+              Sign in with email
+            </EmailBtn>
+            <Terms>
+              By clicking Continue, you agree to LinkedIn's{" "}
+              <a href="#">User Agreement</a>, <a href="#">Privacy Policy</a>,
+              and <a href="#">Cookie Policy</a>.
+            </Terms>
+          </AuthBox>
+        </HeroContent>
+        <HeroImage>
+          <img src="/images/login-hero.svg" alt="Professional Journey" />
+        </HeroImage>
       </Section>
-      <Banner>
-        <img src="/images/background-banner.png" alt="background-banner" />
-      </Banner>
+
       <Footer>
-        <div>
-          <img src="/images/login-logo.svg" alt="footer-logo" />
-        </div>
-        <div>
-          <h2>General</h2>
-          <ul>
-            <li>
+        <FooterContent>
+          <img
+            src="/images/login-logo.svg"
+            alt="LinkedIn"
+            className="footer-logo"
+          />
+          <FooterLinks>
+            <div className="column">
+              <h4>General</h4>
               <a href="#">Sign Up</a>
-            </li>
-            <li>
               <a href="#">Help Center</a>
-            </li>
-            <li>
               <a href="#">About</a>
-            </li>
-            <li>
-              <a href="#">Press</a>
-            </li>
-            <li>
-              <a href="#">Blog</a>
-            </li>
-            <li>
               <a href="#">Careers</a>
-            </li>
-            <li>
-              <a href="#">Developers</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2>Browse LinkedIn</h2>
-          <ul>
-            <li>
+            </div>
+            <div className="column">
+              <h4>Browse</h4>
               <a href="#">Learning</a>
-            </li>
-            <li>
               <a href="#">Jobs</a>
-            </li>
-            <li>
               <a href="#">Salary</a>
-            </li>
-            <li>
               <a href="#">Mobile</a>
-            </li>
-            <li>
-              <a href="#">Services</a>
-            </li>
-            <li>
-              <a href="#">Products</a>
-            </li>
-            <li>
-              <a href="#">Top Companies Hub</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2>Business Solutions</h2>
-          <ul>
-            <li>
+            </div>
+            <div className="column">
+              <h4>Business</h4>
               <a href="#">Talent</a>
-            </li>
-            <li>
               <a href="#">Marketing</a>
-            </li>
-            <li>
               <a href="#">Sales</a>
-            </li>
-            <li>
-              <a href="#">Learning</a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h2>Directories</h2>
-          <ul>
-            <li>
-              <a href="#">Members</a>
-            </li>
-            <li>
-              <a href="#">Jobs</a>
-            </li>
-            <li>
-              <a href="#">Companies</a>
-            </li>
-            <li>
-              <a href="#">Featured</a>
-            </li>
-            <li>
-              <a href="#">Learning</a>
-            </li>
-            <li>
-              <a href="#">Posts</a>
-            </li>
-            <li>
-              <a href="#">Articles</a>
-            </li>
-            <li>
-              <a href="#">Schools</a>
-            </li>
-            <li>
-              <a href="#">News</a>
-            </li>
-            <li>
-              <a href="#">News Letters</a>
-            </li>
-            <li>
-              <a href="#">Services</a>
-            </li>
-            <li>
-              <a href="#">Products</a>
-            </li>
-            <li>
-              <a href="#">Advice</a>
-            </li>
-            <li>
-              <a href="#">People Search</a>
-            </li>
-          </ul>
-        </div>
+            </div>
+          </FooterLinks>
+        </FooterContent>
+        <Copyright>
+          <span>LinkedIn Clone © 2026. For Educational Purposes Only.</span>
+        </Copyright>
       </Footer>
-      <Credits>
-        <img src="/images/linkedin-black.png" alt="credit-logo" />
-        <div>| &nbsp; © 2023 All rights reserved &nbsp; |</div>
-        <div>
-          Made by <strong>VEDANT GOUR 🖤</strong> for <b>Learning</b> purpose
-          only
-        </div>
-      </Credits>
     </Container>
   );
 };
 
 const Container = styled.div`
-  padding: 0px;
+  padding: 0;
+  background-color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Nav = styled.nav`
   max-width: 1128px;
   margin: auto;
-  padding: 12px 0 16px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  position: relative;
   justify-content: space-between;
-  flex-wrap: nowrap;
+  width: 100%;
 
-  & > a {
+  img {
     width: 135px;
-    height: 34px;
-    @media (max-width: 768px) {
-      padding: 0 5px;
-    }
   }
 
-  @media (max-width: 375px) {
-    flex-direction: column;
-    gap: 30px;
+  @media (max-width: 768px) {
+    padding: 12px 24px;
   }
 `;
 
-const Download = styled.div`
+const NavButtons = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  display: inline-block;
-  color: rgba(0, 0, 0, 0.6);
-  /* border-top: 1px solid rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2); */
-  padding-top: 10px;
-  padding-bottom: 10px;
-  width: 120px;
-
-  a {
-    text-decoration: none;
-    color: rgba(0, 0, 0, 0.6);
-
-    &:hover {
-      color: rgba(0, 0, 0, 0.9);
-    }
-  }
-
-  p {
-    font-size: 14px;
-  }
+  gap: 12px;
 `;
 
-const Join = styled.a`
+const JoinButton = styled.button`
   font-size: 16px;
-  padding: 10px 12px;
-  text-decoration: none;
-  border-radius: 20px;
-  color: rgba(0, 0, 0, 0.6);
-  margin-right: 12px;
-  font-weight: 500;
-  cursor: pointer;
-
+  padding: 10px 24px;
+  border-radius: 24px;
+  color: var(--linkedin-text-secondary);
+  font-weight: 600;
   &:hover {
     background-color: rgba(0, 0, 0, 0.08);
-    color: rgba(0, 0, 0, 0.9);
-    text-decoration: none;
+    color: var(--linkedin-text);
   }
 `;
 
-const SignIn = styled.a`
-  cursor: pointer;
-  box-shadow: inset 0 0 0 1px #0a66c2;
-  color: #0a66c2;
-  border-radius: 24px;
-  transition-duration: 167ms;
+const SignInButton = styled.button`
   font-size: 16px;
-  font-weight: 650;
-  line-height: 40px;
   padding: 10px 24px;
-  text-align: center;
-  background-color: rgba(0, 0, 0, 0);
-
+  border-radius: 24px;
+  border: 1px solid var(--linkedin-blue);
+  color: var(--linkedin-blue);
+  font-weight: 600;
   &:hover {
-    border: 1px solid;
-    background-color: rgba(112, 181, 249, 0.15);
-    color: #0a66c2;
-    text-decoration: none;
+    background-color: rgba(10, 102, 194, 0.1);
+    border-width: 2px;
   }
 `;
 
 const Section = styled.section`
   display: flex;
-  align-content: start;
-  min-height: 700px;
-  padding-bottom: 138px;
-  padding-top: 40px;
-  padding: 60px 0;
-  position: relative;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 1128px;
   align-items: center;
-  margin: auto;
+  margin: 0 auto;
+  min-height: 700px;
+  max-width: 1128px;
+  width: 100%;
+  padding: 40px 0;
+
+  @media (max-width: 1128px) {
+    padding: 40px 24px;
+  }
 
   @media (max-width: 768px) {
-    margin: auto;
-    min-height: 0px;
+    flex-direction: column;
+    padding: 20px 24px 40px;
+    min-height: 0;
   }
 `;
 
-const Hero = styled.div`
-  width: 100%;
+const HeroContent = styled.div`
+  width: 55%;
+  z-index: 2;
 
-  h1 {
-    padding-bottom: 10px;
-    width: 55%;
-    font-size: 56px;
-    color: #8f5849;
-    font-weight: 200;
-    line-height: 70px;
-
-    @media (max-width: 768px) {
-      text-align: center;
-      font-size: 20px;
-      font-weight: 400;
-      width: 100%;
-      line-height: 2;
-    }
+  @media (max-width: 768px) {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
+`;
+
+const HeroImage = styled.div`
+  width: 45%;
+  display: flex;
+  justify-content: center;
 
   img {
-    /* z-index: -1; */
-    width: 55%;
+    width: 650px;
     height: auto;
-    position: absolute;
-    bottom: 100px;
-    right: -50px;
-    transition: all 0.5s ease;
+    flex-shrink: 0;
+  }
 
-    @media (max-width: 768px) {
-      top: 230px;
-      width: initial;
-      position: initial;
-      height: initial;
+  @media (max-width: 768px) {
+    position: relative;
+    right: initial;
+    top: initial;
+    width: 100%;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+
+    img {
+      width: 100%;
+      max-width: 400px;
     }
   }
 `;
 
-const Form = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-
-  gap: 50px;
-  margin-top: 100px;
-  width: 408px;
+const Title = styled.h1`
+  width: 100%;
+  font-size: 56px;
+  color: #2977c9;
+  font-weight: 200;
+  line-height: 70px;
+  margin-bottom: 30px;
 
   @media (max-width: 768px) {
-    margin-top: 20px;
-    margin-left: auto;
-    margin-right: auto;
     text-align: center;
+    font-size: 32px;
+    line-height: 1.2;
+    margin-bottom: 24px;
   }
 `;
 
-const Google = styled.button`
-  cursor: pointer;
+const AuthBox = styled.div`
+  width: 408px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    align-items: center;
+  }
+`;
+
+const GoogleBtn = styled.button`
   display: flex;
   justify-content: center;
-  gap: 15px;
-  background-color: #fff;
   align-items: center;
+  gap: 12px;
+  background-color: #fff;
   height: 56px;
   width: 100%;
   border-radius: 28px;
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 60%),
-    inset 0 0 0 2px rgb(0 0 0 / 0%) inset 0 0 0 1px rgb(0 0 0 / 0);
-  vertical-align: middle;
-  z-index: 0;
-  transition-duration: 167ms;
+  border: 1px solid rgba(0, 0, 0, 0.6);
   font-size: 20px;
-  color: rgba(0, 0, 0, 0.6);
+  color: var(--linkedin-text-secondary);
+  transition: all 0.2s;
 
   &:hover {
-    background-color: rgba(207, 207, 207, 0.25);
-    color: rgba(0, 0, 0, 0.75);
+    background-color: rgba(0, 0, 0, 0.05);
+    border: 2px solid var(--linkedin-text);
+    color: var(--linkedin-text);
   }
 
-  h2 {
-    font-weight: 400;
+  img {
+    width: 24px;
   }
 `;
 
-const Connection = styled.div`
+const EmailBtn = styled(GoogleBtn)`
+  font-size: 18px;
+  background-color: var(--linkedin-blue);
+  color: #fff;
+  border: none;
+  &:hover {
+    background-color: var(--linkedin-blue-hover);
+    color: #fff;
+    border: none;
+  }
+`;
+
+const Divider = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
-
-  h1 {
-    font-size: 35px;
-    color: #2977c9;
-    font-weight: 200;
+  text-align: center;
+  color: var(--linkedin-text-secondary);
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
   }
-
-  img {
-    width: 60%;
-  }
-
-  @media (max-width: 768px) {
-    gap: 15px;
-    flex-direction: column;
+  span {
+    padding: 0 10px;
+    font-size: 14px;
   }
 `;
 
-const Banner = styled.div`
-  img {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-  }
-`;
-
-const Footer = styled.div`
-  background-color: #efece4;
-  margin-top: 20px;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  flex-wrap: wrap;
-
-  div {
-    width: 17%;
-  }
-
-  img {
-    width: 135px;
-    height: 34px;
-  }
-
-  h2 {
-    font-size: 18px;
-    font-weight: 500;
-    margin-bottom: 10px;
-  }
-
-  ul {
-    list-style: none;
-
-    li {
-      padding: 2px;
-      font-size: 15px;
-      font-weight: 500;
-    }
-  }
-
+const Terms = styled.p`
+  font-size: 12px;
+  color: var(--linkedin-text-secondary);
+  text-align: center;
+  line-height: 1.5;
   a {
-    text-decoration: none;
-    color: rgba(0, 0, 0, 0.5);
-
+    color: var(--linkedin-blue);
+    font-weight: 600;
     &:hover {
-      font-weight: 500;
-      color: #0b66c2;
       text-decoration: underline;
     }
   }
+`;
 
-  @media (max-width: 768px) {
-    div {
-      width: 100%;
-    }
+const Footer = styled.footer`
+  background-color: #f3f2f1;
+  padding: 40px 16px;
+  margin-top: auto;
+`;
 
-    text-align: center;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    flex-direction: column;
+const FooterContent = styled.div`
+  max-width: 1128px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+
+  .footer-logo {
+    width: 100px;
   }
 `;
 
-const Credits = styled.div`
+const FooterLinks = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  text-align: center;
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.7);
+  gap: 60px;
 
-  img {
-    width: 80px;
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    h4 {
+      font-size: 14px;
+      color: var(--linkedin-text);
+      font-weight: 600;
+    }
+    a {
+      font-size: 12px;
+      color: var(--linkedin-text-secondary);
+      font-weight: 600;
+      &:hover {
+        text-decoration: underline;
+        color: var(--linkedin-blue);
+      }
+    }
   }
 
   @media (max-width: 768px) {
-    gap: 15px;
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 32px;
   }
+`;
+
+const Copyright = styled.div`
+  max-width: 1128px;
+  margin: 32px auto 0;
+  border-top: 1px solid #e0e0e0;
+  padding-top: 16px;
+  font-size: 12px;
+  color: var(--linkedin-text-secondary);
 `;
 
 export default Login;
